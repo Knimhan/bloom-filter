@@ -14,9 +14,9 @@ Follow these steps to add and to check if word contains int the dictionary.
 
 
 #### BloomFilter 
-  1. void add(String word) : 
+  1. void add(List<String> words) : 
 
-Adds the word to bit set. By creating 'n' no of hashes and extracting random bits to set in a bit set.
+Adds list of words to bit set. By creating 'n' no of hashes and extracting random bits to set in a bit set.
   
   2. boolean contains(String word)
 
