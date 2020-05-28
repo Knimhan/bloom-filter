@@ -11,13 +11,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class BloomFilterImplTest {
+public class WordReaderTest {
 
-    private BloomFilterImpl bloomFilterImpl;
     private BloomFilter bloomFilter;
 
-    public BloomFilterImplTest() {
-        this.bloomFilterImpl = new BloomFilterImpl();
+    public WordReaderTest() {
         this.bloomFilter = new BloomFilter();
     }
 
@@ -26,7 +24,7 @@ public class BloomFilterImplTest {
 
         Assertions.assertThrows(IOException.class, () -> {
             String filename = "/fakefilename.txt";
-            this.bloomFilterImpl.readWordList(filename);
+            WordReader.readWords(filename);
         });
     }
 
@@ -35,7 +33,7 @@ public class BloomFilterImplTest {
 
         String filename = "/wordlist.txt";
         try {
-            List<String> words = this.bloomFilterImpl.readWordList(filename);
+            List<String> words = WordReader.readWords(filename);
             String lastWord = words.get(words.size() - 1);
             assertEquals("�v�nements", lastWord);
         } catch (IOException e) {
@@ -48,9 +46,7 @@ public class BloomFilterImplTest {
     public void testBloomFilterToReadFileAndIfContainsWords(String input) {
         String filename = "/wordlist.txt";
         try {
-            for (String word : this.bloomFilterImpl.readWordList(filename)) {
-                this.bloomFilter.add(word);
-            }
+            this.bloomFilter.add(WordReader.readWords(filename));
         } catch (IOException e) {
             e.printStackTrace();
         }

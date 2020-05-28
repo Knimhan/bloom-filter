@@ -3,25 +3,25 @@ package de.dkp;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Random;
 
 public class BloomFilter {
-    private int TOTAL_NO_OF_HASH_FUNCTIONS = 5;
-    private int TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH = 5;
+
+    private static final int DEFAULT_BITSET_SIZE = 5000000;
+    private static final String ALGORITHM = "MD5";
+    private int totalNoOfHashFunctions = 5;
+    private int noOfBitsToBeExtracted = 5;
     private MessageDigest hasher;
     private int[] randomArray;
-
-    public BitSet bitSet;
+    private BitSet bitSet;
 
     public BloomFilter() {
-        try {
-            this.bitSet = new BitSet(5000000);
-            this.hasher = MessageDigest.getInstance("MD5");
-            this.randomArray = getRandomArray(TOTAL_NO_OF_HASH_FUNCTIONS * TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.bitSet = new BitSet(DEFAULT_BITSET_SIZE);
+        this.hasher = getDefaultMessageDigest();
+        this.randomArray = getRandomArray(totalNoOfHashFunctions * noOfBitsToBeExtracted);
     }
 
     public BloomFilter(BitSet bitSet,
@@ -30,17 +30,19 @@ public class BloomFilter {
                        int noOfBitsToBeExtracted) {
         this.bitSet = bitSet;
         this.hasher = messageDigest;
-        this.TOTAL_NO_OF_HASH_FUNCTIONS = totalNoOfHashFunctions;
-        this.TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH = noOfBitsToBeExtracted;
+        this.totalNoOfHashFunctions = totalNoOfHashFunctions;
+        this.noOfBitsToBeExtracted = noOfBitsToBeExtracted;
         this.getRandomArray(totalNoOfHashFunctions * noOfBitsToBeExtracted);
     }
 
-    public void add(String word) {
-        add(word.getBytes());
+    public void add(List<String> words) {
+        for (String word : words) {
+            add(word.toLowerCase().getBytes());
+        }
     }
 
     public boolean contains(String word) {
-        for (int hash : createHashes(word.getBytes())) {
+        for (int hash : createHashes(word.toLowerCase().getBytes())) {
             if (!this.bitSet.get(getBitIndex(hash))) {
                 return false;
             }
@@ -49,20 +51,22 @@ public class BloomFilter {
     }
 
     private int[] createHashes(byte[] data) {
-        int[] result = new int[TOTAL_NO_OF_HASH_FUNCTIONS];
-        for (int i = 0; i < TOTAL_NO_OF_HASH_FUNCTIONS; i++) {
+        int[] result = new int[totalNoOfHashFunctions];
+        for (int i = 0; i < totalNoOfHashFunctions; i++) {
             this.hasher.update(BigInteger.valueOf(i).toByteArray());
-            byte[] digest = this.hasher.digest(data);
-            int counter = 0;
-            int tempResult = 1;
-            while (counter < TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH) {
-                tempResult = tempResult * digest[this.randomArray[(i * TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH) + counter]];
-                counter++;
-            }
-            result[i] = tempResult;
-            result[i] = tempResult;
+            result[i] = extractNextBit(i, this.hasher.digest(data));
         }
         return result;
+    }
+
+    private int extractNextBit(int i, byte[] digest) {
+        int tempResult = 1;
+        int counter = 0;
+        while (counter < noOfBitsToBeExtracted) {
+            tempResult = tempResult * digest[this.randomArray[(i * noOfBitsToBeExtracted) + counter]];
+            counter++;
+        }
+        return tempResult;
     }
 
     private void add(byte[] bytes) {
@@ -82,5 +86,14 @@ public class BloomFilter {
             this.randomArray[i] = random.nextInt(16);
         }
         return this.randomArray;
+    }
+
+    private MessageDigest getDefaultMessageDigest() {
+        try {
+            return MessageDigest.getInstance(ALGORITHM);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
