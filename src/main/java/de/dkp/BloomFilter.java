@@ -7,22 +7,32 @@ import java.util.BitSet;
 import java.util.Random;
 
 public class BloomFilter {
-    private static int TOTAL_NO_OF_HASH_FUNCTIONS = 5;
-    private static final int TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH = 5;
-    private static final int RANDOM_ARRAY_SIZE = TOTAL_NO_OF_HASH_FUNCTIONS * TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH;
-    private static MessageDigest hasher;
-    private static int[] randomArray;
+    private int TOTAL_NO_OF_HASH_FUNCTIONS = 5;
+    private int TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH = 5;
+    private MessageDigest hasher;
+    private int[] randomArray;
 
-    public static BitSet bitSet;
+    public BitSet bitSet;
 
     public BloomFilter() {
         try {
             this.bitSet = new BitSet(5000000);
             this.hasher = MessageDigest.getInstance("MD5");
-            this.randomArray = getRandomArray();
+            this.randomArray = getRandomArray(TOTAL_NO_OF_HASH_FUNCTIONS * TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public BloomFilter(BitSet bitSet,
+                       MessageDigest messageDigest,
+                       int totalNoOfHashFunctions,
+                       int noOfBitsToBeExtracted) {
+        this.bitSet = bitSet;
+        this.hasher = messageDigest;
+        this.TOTAL_NO_OF_HASH_FUNCTIONS = totalNoOfHashFunctions;
+        this.TOTAL_NO_OF_BITS_TOBE_EXTRACTED_FROM_HASH = noOfBitsToBeExtracted;
+        this.getRandomArray(totalNoOfHashFunctions * noOfBitsToBeExtracted);
     }
 
     public void add(String word) {
@@ -65,8 +75,8 @@ public class BloomFilter {
         return Math.abs(hash % this.bitSet.size());
     }
 
-    private int[] getRandomArray() {
-        this.randomArray = new int[RANDOM_ARRAY_SIZE];
+    private int[] getRandomArray(int randomArraySize) {
+        this.randomArray = new int[randomArraySize];
         Random random = new Random();
         for (int i = 0; i < this.randomArray.length; i++) {
             this.randomArray[i] = random.nextInt(16);

@@ -7,7 +7,6 @@ import java.util.List;
 
 public class BloomFilterImpl {
 
-    private static String filename = "/wordlist.txt";
 
     public static List<String> readWordList(String filename) throws IOException {
         BufferedReader br = null;
@@ -24,19 +23,4 @@ public class BloomFilterImpl {
         return list;
     }
 
-    public static void main(String[] args) {
-        try {
-            List<String> wordsInDictionary = readWordList(filename);
-            BloomFilter bloomFilter = null;
-            bloomFilter = new BloomFilter();
-            for (String word : wordsInDictionary) {
-                bloomFilter.add(word);
-            }
-            System.out.println("Check if contains first word:  "+ bloomFilter.contains("A'asia"));
-            System.out.println("Check if contains first word:  "+ bloomFilter.contains("�v�nements"));
-            System.out.println("Check if does not contain a word:  "+ bloomFilter.contains("SOMEFAKEWORD"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

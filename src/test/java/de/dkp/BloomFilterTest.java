@@ -1,7 +1,13 @@
 package de.dkp;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.BitSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -37,5 +43,13 @@ public class BloomFilterTest {
 
         //then
         assertEquals(false, result);
+    }
+
+    @Test
+    public void testBloomFilterForNoSuchAlgorithmException() {
+
+        Assertions.assertThrows(NoSuchAlgorithmException.class, () -> {
+            new BloomFilter(new BitSet(10), MessageDigest.getInstance("TEST"), 1, 1);
+        });
     }
 }
