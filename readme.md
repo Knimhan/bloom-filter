@@ -22,7 +22,7 @@ Adds list of words to bit set. By creating 'n' no of hashes and extracting rando
 
 Check if the word is present in bit set. By creating 'n' no of hashes and extracting random bits to check if these are true in a bit set.
 
-#### BloomFilterImpl
+#### WordChecker
   1. List<String> readWordList(String filename) : 
   
 Reads the file mentioned in the input parameter and converts it to List<String>.
